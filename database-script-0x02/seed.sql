@@ -157,4 +157,77 @@ INSERT INTO Payment (payment_id, booking_id, amount, payment_date, payment_metho
 
 INSERT INTO Review (review_id, property_id, user_id, rating, comment, created_at) VALUES
 ('a50e8400-e29b-41d4-a716-446655440001', '750e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440008', 5, 'Absolutely stunning loft! The views were incredible and Emily was a wonderful host. The location couldn''t be better - walked to Broadway shows every night. Highly recommend!', '2024-06-06 14:00:00'),
-('a50e8400-e29b-41d4-a716-446655440002', '750e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440009', 5, 'Paradise! The ro
+('a50e8400-e29b-41d4-a716-446655440002', '750e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440009', 5, 'Paradise! The rooftop pool was amazing and the beach access was perfect. Emily thought of everything - we had an unforgettable week!', '2024-07-18 15:00:00'),
+('a50e8400-e29b-41d4-a716-446655440003', '750e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440010', 4, 'Beautiful Victorian home with lots of character. The neighborhood is fantastic with great restaurants nearby. Only minor issue was the WiFi could be stronger.', '2024-08-13 16:00:00'),
+('a50e8400-e29b-41d4-a716-446655440004', '750e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440011', 5, 'Perfect for my solo trip! Clean, cozy, and James was super responsive. Great value for money in an expensive city.', '2024-09-19 17:00:00'),
+('a50e8400-e29b-41d4-a716-446655440005', '750e8400-e29b-41d4-a716-446655440005', '550e8400-e29b-41d4-a716-446655440012', 5, 'Incredible location in the heart of London. Walked to all major attractions. Sophia provided excellent recommendations for local spots.', '2024-10-09 18:00:00'),
+('a50e8400-e29b-41d4-a716-446655440006', '750e8400-e29b-41d4-a716-446655440006', '550e8400-e29b-41d4-a716-446655440013', 5, 'Magnifique! The apartment was exactly as described. Felt like a true Parisian living here. The kitchen was well-equipped and the area was safe and vibrant.', '2024-11-16 19:00:00'),
+('a50e8400-e29b-41d4-a716-446655440007', '750e8400-e29b-41d4-a716-446655440007', '550e8400-e29b-41d4-a716-446655440014', 4, 'Wonderful Roman experience. The villa had authentic charm and the terrace was our favorite spot for morning coffee. A few blocks to major sites.', '2024-12-28 20:00:00'),
+('a50e8400-e29b-41d4-a716-446655440008', '750e8400-e29b-41d4-a716-446655440008', '550e8400-e29b-41d4-a716-446655440015', 5, 'Modern, clean, and perfectly located in Shibuya. David was an excellent host with great local tips. The view from the balcony was breathtaking!', '2025-01-11 21:00:00'),
+('a50e8400-e29b-41d4-a716-446655440009', '750e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440009', 4, 'Great place overall. The loft is spacious and well-maintained. Only wish checkout time was a bit later, but that''s a minor point.', '2024-06-10 10:00:00'),
+('a50e8400-e29b-41d4-a716-446655440010', '750e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440011', 5, 'Loved every minute! The house had so much charm and the garden was beautiful. James was responsive and helpful throughout.', '2024-08-15 11:00:00'),
+('a50e8400-e29b-41d4-a716-446655440011', '750e8400-e29b-41d4-a716-446655440005', '550e8400-e29b-41d4-a716-446655440013', 3, 'Good location but the flat was smaller than expected. Clean and functional though. Would stay again for the convenience.', '2024-10-12 12:00:00'),
+('a50e8400-e29b-41d4-a716-446655440012', '750e8400-e29b-41d4-a716-446655440009', '550e8400-e29b-41d4-a716-446655440014', 5, 'Beach house dreams! Waking up to ocean views every day was magical. Surfboards were a nice touch. Olivia is a fantastic host!', '2024-11-20 13:00:00');
+
+-- =====================================================
+-- SEED DATA: Message Table
+-- =====================================================
+-- Creating message conversations between users
+
+INSERT INTO Message (message_id, sender_id, recipient_id, message_body, sent_at) VALUES
+-- Guest inquiries to hosts
+('b50e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440008', '550e8400-e29b-41d4-a716-446655440003', 'Hi Emily! I''m interested in booking your Manhattan loft for early June. Is it available from June 1-5?', '2024-04-10 09:00:00'),
+('b50e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440008', 'Hi Daniel! Yes, those dates are available. The loft sleeps 4 comfortably. Would you like to proceed with the booking?', '2024-04-10 09:30:00'),
+('b50e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440008', '550e8400-e29b-41d4-a716-446655440003', 'Perfect! Just booked. Quick question - what''s the best way to get from JFK to the loft?', '2024-04-15 10:15:00'),
+('b50e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440008', 'Great! I recommend taking a taxi or Uber - about 45 minutes depending on traffic. I''ll send you detailed directions before your arrival.', '2024-04-15 10:45:00'),
+
+-- Another conversation
+('b50e8400-e29b-41d4-a716-446655440005', '550e8400-e29b-41d4-a716-446655440009', '550e8400-e29b-41d4-a716-446655440003', 'Hello! Does your Miami penthouse allow pets? I have a small dog.', '2024-04-25 11:00:00'),
+('b50e8400-e29b-41d4-a716-446655440006', '550e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440009', 'Unfortunately, no pets are allowed in the penthouse due to building rules. Sorry about that!', '2024-04-25 11:30:00'),
+('b50e8400-e29b-41d4-a716-446655440007', '550e8400-e29b-41d4-a716-446655440009', '550e8400-e29b-41d4-a716-446655440003', 'No problem, I understand. I''ll make arrangements for my dog. Can I still book for July 10-17?', '2024-04-25 12:00:00'),
+('b50e8400-e29b-41d4-a716-446655440008', '550e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440009', 'Absolutely! Those dates work perfectly. Looking forward to hosting you!', '2024-04-25 12:15:00'),
+
+-- Question about amenities
+('b50e8400-e29b-41d4-a716-446655440009', '550e8400-e29b-41d4-a716-446655440010', '550e8400-e29b-41d4-a716-446655440004', 'Hi James, does your Victorian home have parking available?', '2024-06-01 14:00:00'),
+('b50e8400-e29b-41d4-a716-446655440010', '550e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440010', 'Yes! There''s a private garage that fits one car. Street parking is also available for additional vehicles.', '2024-06-01 14:20:00'),
+
+-- Special request
+('b50e8400-e29b-41d4-a716-446655440011', '550e8400-e29b-41d4-a716-446655440011', '550e8400-e29b-41d4-a716-446655440004', 'We''re celebrating our anniversary. Any recommendations for romantic restaurants nearby?', '2024-08-01 16:00:00'),
+('b50e8400-e29b-41d4-a716-446655440012', '550e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440011', 'Congratulations! I''ll send you a list of my favorite spots. Also, I can arrange for flowers in the apartment if you''d like.', '2024-08-01 16:30:00'),
+('b50e8400-e29b-41d4-a716-446655440013', '550e8400-e29b-41d4-a716-446655440011', '550e8400-e29b-41d4-a716-446655440004', 'That would be amazing! Thank you so much, you''re very thoughtful!', '2024-08-01 17:00:00'),
+
+-- Check-in question
+('b50e8400-e29b-41d4-a716-446655440014', '550e8400-e29b-41d4-a716-446655440012', '550e8400-e29b-41d4-a716-446655440005', 'Hi Sophia, what time can we check in on October 1st?', '2024-09-25 10:00:00'),
+('b50e8400-e29b-41d4-a716-446655440015', '550e8400-e29b-41d4-a716-446655440005', '550e8400-e29b-41d4-a716-446655440012', 'Standard check-in is 3 PM, but I can arrange early check-in at 1 PM if the apartment is ready. Let me know!', '2024-09-25 10:30:00'),
+
+-- During stay message
+('b50e8400-e29b-41d4-a716-446655440016', '550e8400-e29b-41d4-a716-446655440013', '550e8400-e29b-41d4-a716-446655440005', 'The heating isn''t working properly. Could you help?', '2024-11-12 20:00:00'),
+('b50e8400-e29b-41d4-a716-446655440017', '550e8400-e29b-41d4-a716-446655440005', '550e8400-e29b-41d4-a716-446655440013', 'I''m so sorry! I''ll send a technician first thing tomorrow morning. In the meantime, there are extra blankets in the closet.', '2024-11-12 20:15:00'),
+('b50e8400-e29b-41d4-a716-446655440018', '550e8400-e29b-41d4-a716-446655440013', '550e8400-e29b-41d4-a716-446655440005', 'Thank you for the quick response! We found the blankets.', '2024-11-12 20:30:00'),
+
+-- Positive feedback
+('b50e8400-e29b-41d4-a716-446655440019', '550e8400-e29b-41d4-a716-446655440014', '550e8400-e29b-41d4-a716-446655440006', 'David, thank you for an amazing stay! Your villa exceeded our expectations. We left a 5-star review!', '2024-12-28 11:00:00'),
+('b50e8400-e29b-41d4-a716-446655440020', '550e8400-e29b-41d4-a716-446655440006', '550e8400-e29b-41d4-a716-446655440014', 'Thank you so much! It was a pleasure hosting you. Come back anytime!', '2024-12-28 12:00:00');
+
+-- =====================================================
+-- VERIFICATION QUERIES
+-- =====================================================
+-- Uncomment to verify data was inserted correctly
+
+-- SELECT COUNT(*) as user_count FROM User;
+-- SELECT COUNT(*) as location_count FROM Location;
+-- SELECT COUNT(*) as property_count FROM Property;
+-- SELECT COUNT(*) as booking_count FROM Booking;
+-- SELECT COUNT(*) as payment_count FROM Payment;
+-- SELECT COUNT(*) as review_count FROM Review;
+-- SELECT COUNT(*) as message_count FROM Message;
+
+-- =====================================================
+-- RESET SAFE MODE
+-- =====================================================
+SET FOREIGN_KEY_CHECKS = 1;
+COMMIT;
+
+-- =====================================================
+-- END OF SEED DATA
+-- =====================================================
