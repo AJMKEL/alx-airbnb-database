@@ -1,5 +1,53 @@
 -- ALX Airbnb Database - Index Creation for Performance Optimization
 -- This file contains SQL commands to create indexes on high-usage columns
+-- and includes EXPLAIN ANALYZE commands to measure performance improvements
+
+-- =====================================================
+-- PERFORMANCE MEASUREMENT - BEFORE INDEXING
+-- =====================================================
+-- Run these queries BEFORE creating indexes to establish baseline performance
+
+-- Query 1: Find all bookings for a specific user
+EXPLAIN ANALYZE
+SELECT b.*, p.name, p.location
+FROM Booking b
+JOIN Property p ON b.property_id = p.property_id
+WHERE b.user_id = 12345
+ORDER BY b.start_date DESC;
+
+-- Query 2: Search properties by location and price range
+EXPLAIN ANALYZE
+SELECT * FROM Property
+WHERE location = 'New York'
+  AND pricepernight BETWEEN 100 AND 300
+ORDER BY pricepernight ASC;
+
+-- Query 3: Find properties with average rating > 4.0
+EXPLAIN ANALYZE
+SELECT p.property_id, p.name, AVG(r.rating) as avg_rating
+FROM Property p
+JOIN Review r ON p.property_id = r.property_id
+GROUP BY p.property_id, p.name
+HAVING AVG(r.rating) > 4.0
+ORDER BY avg_rating DESC;
+
+-- Query 4: Check property availability for date range
+EXPLAIN ANALYZE
+SELECT * FROM Booking
+WHERE property_id = 789
+  AND status = 'confirmed'
+  AND start_date <= '2024-12-31'
+  AND end_date >= '2024-12-01';
+
+-- Query 5: Find users with more than 3 bookings
+EXPLAIN ANALYZE
+SELECT u.user_id, u.first_name, u.last_name, COUNT(b.booking_id) as total_bookings
+FROM User u
+LEFT JOIN Booking b ON u.user_id = b.user_id
+GROUP BY u.user_id, u.first_name, u.last_name
+HAVING COUNT(b.booking_id) > 3
+ORDER BY total_bookings DESC;
+
 
 -- =====================================================
 -- INDEX STRATEGY OVERVIEW
@@ -170,20 +218,148 @@ CREATE INDEX idx_message_sent_at ON Message(sent_at);
 
 
 -- =====================================================
+-- PERFORMANCE MEASUREMENT - AFTER INDEXING
+-- =====================================================
+-- Run these queries AFTER creating indexes to measure improvements
+-- Compare the results with the baseline measurements above
+
+-- Query 1: Find all bookings for a specific user (WITH INDEXES)
+EXPLAIN ANALYZE
+SELECT b.*, p.name, p.location
+FROM Booking b
+JOIN Property p ON b.property_id = p.property_id
+WHERE b.user_id = 12345
+ORDER BY b.start_date DESC;
+
+-- Query 2: Search properties by location and price range (WITH INDEXES)
+EXPLAIN ANALYZE
+SELECT * FROM Property
+WHERE location = 'New York'
+  AND pricepernight BETWEEN 100 AND 300
+ORDER BY pricepernight ASC;
+
+-- Query 3: Find properties with average rating > 4.0 (WITH INDEXES)
+EXPLAIN ANALYZE
+SELECT p.property_id, p.name, AVG(r.rating) as avg_rating
+FROM Property p
+JOIN Review r ON p.property_id = r.property_id
+GROUP BY p.property_id, p.name
+HAVING AVG(r.rating) > 4.0
+ORDER BY avg_rating DESC;
+
+-- Query 4: Check property availability for date range (WITH INDEXES)
+EXPLAIN ANALYZE
+SELECT * FROM Booking
+WHERE property_id = 789
+  AND status = 'confirmed'
+  AND start_date <= '2024-12-31'
+  AND end_date >= '2024-12-01';
+
+-- Query 5: Find users with more than 3 bookings (WITH INDEXES)
+EXPLAIN ANALYZE
+SELECT u.user_id, u.first_name, u.last_name, COUNT(b.booking_id) as total_bookings
+FROM User u
+LEFT JOIN Booking b ON u.user_id = b.user_id
+GROUP BY u.user_id, u.first_name, u.last_name
+HAVING COUNT(b.booking_id) > 3
+ORDER BY total_bookings DESC;
+
+
+-- =====================================================
+-- ADDITIONAL PERFORMANCE TESTING QUERIES
+-- =====================================================
+
+-- Query 6: Find top-rated properties in a location
+EXPLAIN ANALYZE
+SELECT p.property_id, p.name, p.location, AVG(r.rating) as avg_rating
+FROM Property p
+LEFT JOIN Review r ON p.property_id = r.property_id
+WHERE p.location = 'Los Angeles'
+GROUP BY p.property_id, p.name, p.location
+ORDER BY avg_rating DESC
+LIMIT 10;
+
+-- Query 7: Get user booking history with property details
+EXPLAIN ANALYZE
+SELECT u.user_id, u.first_name, u.last_name, 
+       b.booking_id, b.start_date, b.end_date, b.total_price,
+       p.name as property_name, p.location
+FROM User u
+JOIN Booking b ON u.user_id = b.user_id
+JOIN Property p ON b.property_id = p.property_id
+WHERE u.email = 'user@example.com'
+ORDER BY b.start_date DESC;
+
+-- Query 8: Find available properties for specific dates
+EXPLAIN ANALYZE
+SELECT p.* FROM Property p
+WHERE p.location = 'Miami'
+  AND p.property_id NOT IN (
+    SELECT b.property_id FROM Booking b
+    WHERE b.status = 'confirmed'
+      AND b.start_date <= '2024-12-31'
+      AND b.end_date >= '2024-12-01'
+  );
+
+-- Query 9: Revenue analysis by property
+EXPLAIN ANALYZE
+SELECT p.property_id, p.name, 
+       COUNT(b.booking_id) as total_bookings,
+       SUM(b.total_price) as total_revenue,
+       AVG(b.total_price) as avg_booking_value
+FROM Property p
+LEFT JOIN Booking b ON p.property_id = b.property_id
+WHERE b.status = 'confirmed'
+GROUP BY p.property_id, p.name
+ORDER BY total_revenue DESC
+LIMIT 20;
+
+-- Query 10: Recent reviews for properties
+EXPLAIN ANALYZE
+SELECT p.property_id, p.name, r.rating, r.comment, r.created_at
+FROM Property p
+JOIN Review r ON p.property_id = r.property_id
+WHERE r.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+ORDER BY r.created_at DESC;
+
+
+-- =====================================================
 -- COMMANDS TO VIEW EXISTING INDEXES
 -- =====================================================
 
 -- View all indexes on a specific table (MySQL)
--- SHOW INDEX FROM User;
--- SHOW INDEX FROM Property;
--- SHOW INDEX FROM Booking;
--- SHOW INDEX FROM Review;
+SHOW INDEX FROM User;
+SHOW INDEX FROM Property;
+SHOW INDEX FROM Booking;
+SHOW INDEX FROM Review;
 
--- View index usage statistics (MySQL)
+-- View index usage statistics (MySQL 8.0+)
 -- SELECT * FROM sys.schema_index_statistics WHERE table_schema = 'your_database_name';
 
 -- View unused indexes (MySQL 8.0+)
 -- SELECT * FROM sys.schema_unused_indexes WHERE object_schema = 'your_database_name';
+
+
+-- =====================================================
+-- COMMANDS TO ANALYZE INDEX EFFECTIVENESS
+-- =====================================================
+
+-- Check if indexes are being used
+EXPLAIN 
+SELECT * FROM Booking WHERE user_id = 12345;
+
+-- Analyze query with detailed execution plan
+EXPLAIN ANALYZE
+SELECT b.*, p.name 
+FROM Booking b 
+JOIN Property p ON b.property_id = p.property_id 
+WHERE b.user_id = 12345;
+
+-- Show query execution profile (MySQL)
+-- SET profiling = 1;
+-- [Run your query here]
+-- SHOW PROFILES;
+-- SHOW PROFILE FOR QUERY 1;
 
 
 -- =====================================================
@@ -200,10 +376,10 @@ CREATE INDEX idx_message_sent_at ON Message(sent_at);
 -- =====================================================
 
 -- Analyze tables to update statistics after creating indexes (MySQL)
--- ANALYZE TABLE User;
--- ANALYZE TABLE Property;
--- ANALYZE TABLE Booking;
--- ANALYZE TABLE Review;
+ANALYZE TABLE User;
+ANALYZE TABLE Property;
+ANALYZE TABLE Booking;
+ANALYZE TABLE Review;
 
 -- Optimize tables to reorganize data and indexes (MySQL)
 -- OPTIMIZE TABLE User;
@@ -213,10 +389,52 @@ CREATE INDEX idx_message_sent_at ON Message(sent_at);
 
 
 -- =====================================================
+-- MONITORING QUERIES FOR INDEX PERFORMANCE
+-- =====================================================
+
+-- Monitor table and index sizes
+SELECT 
+    table_name,
+    ROUND(((data_length + index_length) / 1024 / 1024), 2) AS "Size (MB)",
+    ROUND((index_length / 1024 / 1024), 2) AS "Index Size (MB)"
+FROM information_schema.TABLES
+WHERE table_schema = DATABASE()
+ORDER BY (data_length + index_length) DESC;
+
+-- Check index cardinality (uniqueness)
+SELECT 
+    table_name,
+    index_name,
+    cardinality,
+    seq_in_index,
+    column_name
+FROM information_schema.STATISTICS
+WHERE table_schema = DATABASE()
+ORDER BY table_name, index_name, seq_in_index;
+
+
+-- =====================================================
 -- NOTES AND BEST PRACTICES
 -- =====================================================
 
 /*
+USING EXPLAIN ANALYZE:
+- EXPLAIN shows the query execution plan (what the optimizer intends to do)
+- EXPLAIN ANALYZE actually runs the query and shows real execution statistics
+- Compare execution time, rows examined, and access types before/after indexing
+
+KEY METRICS TO MONITOR:
+1. Execution Time: Total time to run the query
+2. Rows Examined: Number of rows scanned (lower is better)
+3. Access Type: 
+   - ALL = full table scan (bad, needs index)
+   - index = full index scan (acceptable)
+   - range = index range scan (good)
+   - ref = index lookup (very good)
+   - const = single row lookup (excellent)
+4. Key Used: Which index was used (NULL means no index)
+5. Extra: Additional information (Using filesort, Using temporary, etc.)
+
 INDEX SELECTION CRITERIA:
 1. Columns used in WHERE clauses (high priority)
 2. Foreign key columns used in JOINs (critical)
@@ -228,20 +446,21 @@ COMPOSITE INDEX GUIDELINES:
 - Most selective column should be first
 - Consider query patterns when ordering columns
 - Left-prefix rule: queries can use left portion of composite index
+- Example: Index on (location, pricepernight) can be used for:
+  * WHERE location = 'X' AND pricepernight = Y (both columns)
+  * WHERE location = 'X' (first column only)
+  * But NOT for: WHERE pricepernight = Y (skips first column)
 
 AVOID OVER-INDEXING:
 - Each index adds overhead to INSERT, UPDATE, DELETE
 - Monitor index usage and remove unused indexes
 - Balance read performance vs write performance
-
-MONITORING:
-- Use EXPLAIN to verify index usage
-- Monitor slow query log
-- Review index statistics regularly
-- Consider covering indexes for frequently used queries
+- For heavy write workloads, fewer indexes may be better
 
 MAINTENANCE:
 - Rebuild fragmented indexes periodically
 - Update statistics after bulk operations
 - Monitor index size and growth
+- Consider covering indexes for frequently used queries
+- Use ANALYZE TABLE regularly to update statistics
 */
