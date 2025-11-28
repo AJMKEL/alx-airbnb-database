@@ -1,0 +1,392 @@
+# ALX Airbnb Database - Aggregations and Window Functions
+
+## Project Overview
+
+This task focuses on mastering SQL aggregation functions and window functions to perform advanced data analysis on the Airbnb database. These powerful features enable statistical calculations, rankings, running totals, and comparative analysis that are essential for business intelligence and reporting.
+
+## Learning Objectives
+
+- Master SQL aggregation functions (COUNT, SUM, AVG, MIN, MAX)
+- Understand and apply window functions for advanced analytics
+- Use GROUP BY to aggregate data across dimensions
+- Implement ranking functions (ROW_NUMBER, RANK, DENSE_RANK)
+- Partition data for comparative analysis
+- Create business intelligence queries for decision-making
+
+## Directory Structure
+
+```
+alx-airbnb-database/
+└── database-adv-script/
+    ├── joins_queries.sql
+    ├── subqueries.sql
+    ├── aggregations_and_window_functions.sql
+    └── README.md
+```
+
+## Task 2: Apply Aggregations and Window Functions
+
+### Objective
+Use SQL aggregation and window functions to analyze booking patterns, user behavior, and property performance.
+
+### Files
+- `aggregations_and_window_functions.sql` - Contains all aggregation and window function queries
+
+## Queries Implemented
+
+### 1. Aggregation: Total Bookings per User
+
+**Purpose**: Count the total number of bookings made by each user.
+
+**Functions Used**:
+- `COUNT()` - Counts booking records per user
+- `GROUP BY` - Groups results by user attributes
+
+**How it works**:
+- LEFT JOIN ensures all users appear, even those with zero bookings
+- COUNT aggregates bookings for each user
+- Results are ordered by total bookings (descending)
+
+**Business Use Cases**:
+- Identify most active users for loyalty programs
+- Segment users by booking frequency
+- Target inactive users with marketing campaigns
+- Calculate customer lifetime value
+
+**Enhanced Version Includes**:
+- Confirmed vs canceled bookings breakdown
+- Total amount spent per user
+- Average booking value
+- First and last booking dates
+- Complete user engagement metrics
+
+### 2. Window Functions: Rank Properties by Bookings
+
+**Purpose**: Rank properties based on the total number of bookings they have received.
+
+**Window Functions Demonstrated**:
+
+#### ROW_NUMBER()
+- Assigns **unique sequential numbers** to each property
+- No ties - each property gets a distinct rank
+- Use when you need unique ordering
+
+#### RANK()
+- Assigns **same rank to tied values**
+- **Skips ranks** after ties (1, 2, 2, 4, 5...)
+- Use when ties should share ranks but leave gaps
+
+#### DENSE_RANK()
+- Assigns **same rank to tied values**
+- **No gaps** in ranking (1, 2, 2, 3, 4...)
+- Use when you want consecutive ranks
+
+**Business Use Cases**:
+- Identify top-performing properties
+- Feature popular listings on homepage
+- Analyze property portfolio performance
+- Set performance benchmarks
+- Reward high-performing hosts
+
+## Key Concepts Explained
+
+### Aggregation Functions
+
+**Definition**: Functions that perform calculations on a set of values and return a single value.
+
+**Common Functions**:
+- `COUNT()` - Counts rows or non-null values
+- `SUM()` - Calculates total of numeric values
+- `AVG()` - Calculates average of numeric values
+- `MIN()` - Finds minimum value
+- `MAX()` - Finds maximum value
+
+**GROUP BY Clause**:
+- Groups rows with the same values into summary rows
+- Required when mixing aggregations with regular columns
+- Can group by multiple columns
+
+**Example**:
+```sql
+SELECT user_id, COUNT(*) as total_bookings
+FROM Booking
+GROUP BY user_id;
+```
+
+### Window Functions
+
+**Definition**: Functions that perform calculations across a set of rows related to the current row, without collapsing rows like GROUP BY.
+
+**Key Characteristics**:
+- Don't reduce the number of rows
+- Can access other rows in the "window"
+- Use OVER() clause to define the window
+- Support PARTITION BY and ORDER BY
+
+**Window Function Types**:
+
+1. **Ranking Functions**:
+   - ROW_NUMBER() - Unique sequential numbers
+   - RANK() - Ranking with gaps
+   - DENSE_RANK() - Ranking without gaps
+   - NTILE() - Divides rows into buckets
+   - PERCENT_RANK() - Percentile ranking
+
+2. **Aggregate Functions** (as window functions):
+   - SUM() OVER()
+   - AVG() OVER()
+   - COUNT() OVER()
+   - MIN() OVER()
+   - MAX() OVER()
+
+3. **Value Functions**:
+   - LAG() - Access previous row
+   - LEAD() - Access next row
+   - FIRST_VALUE() - First value in window
+   - LAST_VALUE() - Last value in window
+
+### PARTITION BY vs GROUP BY
+
+| Feature | GROUP BY | PARTITION BY (Window) |
+|---------|----------|---------------------|
+| Reduces rows | Yes | No |
+| Used with | Aggregations only | Window functions |
+| Result | One row per group | All rows retained |
+| Use case | Summarization | Row-level calculations |
+
+## Advanced Examples Included
+
+### 1. Running Totals
+Track cumulative spending by user over time:
+```sql
+SUM(total_price) OVER (PARTITION BY user_id ORDER BY start_date)
+```
+
+### 2. Percentile Rankings
+Determine where each property stands relative to others:
+```sql
+PERCENT_RANK() OVER (ORDER BY total_bookings)
+```
+
+### 3. Location Comparisons
+Compare each property to its location average:
+```sql
+AVG(total_bookings) OVER (PARTITION BY location)
+```
+
+### 4. Top N per Group
+Find top 3 properties in each location:
+```sql
+ROW_NUMBER() OVER (PARTITION BY location ORDER BY bookings DESC)
+```
+
+### 5. Moving Averages
+Calculate 3-month moving average of bookings:
+```sql
+AVG(monthly_bookings) OVER (ORDER BY month ROWS BETWEEN 2 PRECEDING AND CURRENT ROW)
+```
+
+### 6. Trend Analysis
+Compare current month to previous/next month:
+```sql
+LAG(bookings, 1) OVER (ORDER BY month)
+LEAD(bookings, 1) OVER (ORDER BY month)
+```
+
+## Performance Considerations
+
+### For Aggregations:
+- **Index GROUP BY columns** for faster grouping
+- Use **covering indexes** when possible
+- **Filter before aggregating** with WHERE clause
+- Consider **materialized views** for frequent aggregations
+- Monitor **memory usage** for large groupings
+
+### For Window Functions:
+- **Index PARTITION BY and ORDER BY columns**
+- **Limit window frame size** when using ROWS/RANGE
+- **Avoid unnecessary window functions** in subqueries
+- Use **appropriate window frame** (ROWS vs RANGE)
+- Consider **indexes on sort columns**
+
+### Query Optimization Tips:
+```sql
+-- Good: Filter before window function
+SELECT *, RANK() OVER (ORDER BY bookings DESC)
+FROM (SELECT ... WHERE status = 'confirmed' ...) AS filtered;
+
+-- Less efficient: Filter after window function
+SELECT * FROM (
+    SELECT *, RANK() OVER (ORDER BY bookings DESC) AS rnk
+    FROM all_data
+) WHERE status = 'confirmed';
+```
+
+## Common Use Cases by Industry
+
+### E-commerce
+- Customer purchase frequency analysis
+- Product sales rankings
+- Revenue trends and forecasting
+- Customer lifetime value calculations
+
+### Finance
+- Account balance running totals
+- Transaction pattern analysis
+- Portfolio performance rankings
+- Moving averages for stock prices
+
+### Marketing
+- Campaign performance metrics
+- Customer segmentation by engagement
+- Conversion funnel analysis
+- ROI calculations by channel
+
+### Operations
+- Resource utilization tracking
+- Performance benchmarking
+- Capacity planning
+- Efficiency metrics
+
+## Ranking Function Decision Guide
+
+**Choose ROW_NUMBER when**:
+- You need unique row identifiers
+- Pagination is required
+- Exact ordering without ties is necessary
+
+**Choose RANK when**:
+- Tied values should share the same rank
+- You want gaps after ties (like Olympic medals)
+- Traditional ranking is needed
+
+**Choose DENSE_RANK when**:
+- Tied values should share the same rank
+- You don't want gaps in ranking
+- Consecutive rank values are important
+
+## Testing Your Queries
+
+```sql
+-- Verify aggregation totals
+SELECT SUM(total_bookings) FROM (
+    SELECT user_id, COUNT(*) as total_bookings
+    FROM Booking GROUP BY user_id
+) AS counts;
+
+-- Should equal total bookings
+SELECT COUNT(*) FROM Booking;
+
+-- Verify window function ranks
+SELECT COUNT(DISTINCT booking_rank) AS unique_ranks,
+       COUNT(*) AS total_properties
+FROM (
+    SELECT property_id, 
+           RANK() OVER (ORDER BY COUNT(*) DESC) AS booking_rank
+    FROM Booking
+    GROUP BY property_id
+) AS ranked;
+```
+
+## Real-World Business Queries
+
+### Find VIP Users (Top 10%)
+```sql
+SELECT * FROM (
+    SELECT user_id, total_bookings,
+           NTILE(10) OVER (ORDER BY total_bookings DESC) AS decile
+    FROM user_booking_counts
+) WHERE decile = 1;
+```
+
+### Identify Underperforming Properties
+```sql
+SELECT * FROM (
+    SELECT property_id, total_bookings,
+           AVG(total_bookings) OVER () AS avg_bookings
+    FROM property_stats
+) WHERE total_bookings < avg_bookings * 0.5;
+```
+
+### Month-over-Month Growth
+```sql
+SELECT booking_month,
+       monthly_bookings,
+       LAG(monthly_bookings) OVER (ORDER BY booking_month) AS prev_month,
+       ((monthly_bookings - LAG(monthly_bookings) OVER (ORDER BY booking_month)) 
+        / LAG(monthly_bookings) OVER (ORDER BY booking_month) * 100) AS growth_pct
+FROM monthly_stats;
+```
+
+## Common Pitfalls to Avoid
+
+1. **Forgetting to include all GROUP BY columns** - Results in SQL errors
+2. **Using window functions without OVER clause** - Syntax error
+3. **Confusing PARTITION BY with GROUP BY** - Different purposes
+4. **Not ordering before ROW_NUMBER** - Non-deterministic results
+5. **Inefficient window frame definitions** - Performance issues
+6. **Missing indexes on partition/order columns** - Slow queries
+
+## How to Run
+
+1. **Navigate to directory**:
+   ```bash
+   cd alx-airbnb-database/database-adv-script
+   ```
+
+2. **Execute queries**:
+   ```bash
+   mysql -u username -p database_name < aggregations_and_window_functions.sql
+   ```
+
+3. **Run specific sections**:
+   ```bash
+   mysql -u username -p database_name
+   source aggregations_and_window_functions.sql;
+   ```
+
+## Database Schema Reference
+
+### User Table
+```sql
+user_id, first_name, last_name, email, phone_number, created_at
+```
+
+### Property Table
+```sql
+property_id, name, location, pricepernight, description
+```
+
+### Booking Table
+```sql
+booking_id, user_id, property_id, start_date, end_date, 
+total_price, status, created_at
+```
+
+## Next Steps
+
+Continue to:
+- **Task 3**: Indexing for Optimization
+- **Task 4**: Query Optimization Techniques
+- **Task 5**: Partitioning Large Tables
+- **Task 6**: Performance Monitoring
+
+## Additional Resources
+
+- [MySQL Window Functions](https://dev.mysql.com/doc/refman/8.0/en/window-functions.html)
+- [PostgreSQL Window Functions](https://www.postgresql.org/docs/current/tutorial-window.html)
+- [SQL Aggregation Best Practices](https://use-the-index-luke.com/)
+
+## Author
+
+ALX Africa - Software Engineering Program
+
+## Repository Information
+
+- **GitHub repository**: `alx-airbnb-database`
+- **Directory**: `database-adv-script`
+- **Files**: `aggregations_and_window_functions.sql`, `README.md`
+
+---
+
+**Pro Tip**: Window functions are one of SQL's most powerful features. Master them to unlock advanced analytics capabilities that would otherwise require complex application logic!
