@@ -1,0 +1,253 @@
+# ALX Airbnb Database - Subqueries Practice
+
+## Project Overview
+
+This task focuses on mastering SQL subqueries, both correlated and non-correlated, to perform complex data analysis on the Airbnb database. Subqueries are powerful tools that allow you to nest queries within queries, enabling sophisticated filtering and data retrieval operations.
+
+## Learning Objectives
+
+- Understand the difference between correlated and non-correlated subqueries
+- Write efficient subqueries for data filtering and analysis
+- Use subqueries in WHERE, SELECT, and FROM clauses
+- Optimize query performance with appropriate subquery types
+- Apply subqueries to real-world business scenarios
+
+## Directory Structure
+
+```
+alx-airbnb-database/
+└── database-adv-script/
+    ├── joins_queries.sql
+    ├── subqueries.sql
+    └── README.md
+```
+
+## Task 1: Practice Subqueries
+
+### Objective
+Write both correlated and non-correlated subqueries to analyze the Airbnb database.
+
+### Files
+- `subqueries.sql` - Contains all SQL subquery examples
+
+### Queries Implemented
+
+#### 1. Non-Correlated Subquery: Properties with Average Rating > 4.0
+
+**Purpose**: Find all properties where the average rating is greater than 4.0.
+
+**Type**: Non-correlated subquery (executed once)
+
+**How it works**:
+- The inner subquery calculates average ratings for all properties
+- Groups results by property_id and filters using HAVING
+- The outer query retrieves full property details for matching IDs
+- Subquery is independent of the outer query
+
+**Business Use Case**: Identify high-quality properties for featured listings or premium search results.
+
+**Query Features**:
+- Uses `IN` operator with subquery
+- Includes alternative version with JOIN showing actual ratings
+- Efficiently filters properties based on aggregated review data
+
+#### 2. Correlated Subquery: Users with More Than 3 Bookings
+
+**Purpose**: Find users who have made more than 3 bookings.
+
+**Type**: Correlated subquery (executed for each row)
+
+**How it works**:
+- The outer query scans the User table
+- For each user, the inner subquery counts their bookings
+- The correlation happens through `b.user_id = u.user_id`
+- Subquery depends on values from the outer query
+
+**Business Use Case**: Identify loyal customers for rewards programs, targeted marketing, or VIP services.
+
+**Query Features**:
+- Uses correlated WHERE clause
+- Includes enhanced version showing booking counts
+- Demonstrates the relationship between outer and inner queries
+
+## Key Concepts
+
+### Non-Correlated Subqueries
+
+**Characteristics**:
+- Executed once before the outer query
+- Independent of outer query
+- Can be tested separately
+- Generally more efficient for large datasets
+- Results are reused for all outer query rows
+
+**Common Uses**:
+- Finding records that match aggregated criteria
+- Filtering based on calculated values
+- Creating derived tables
+
+**Performance**: Usually faster because they execute only once.
+
+### Correlated Subqueries
+
+**Characteristics**:
+- Executed once for each row in the outer query
+- Depends on values from the outer query
+- Cannot be tested independently
+- More flexible but potentially slower
+- Creates a row-by-row relationship
+
+**Common Uses**:
+- Row-by-row comparisons
+- Existence checks (EXISTS, NOT EXISTS)
+- Per-record calculations
+- Complex filtering logic
+
+**Performance**: Can be slower on large datasets but sometimes necessary for complex logic.
+
+## Additional Examples Included
+
+The SQL file includes bonus examples demonstrating:
+
+1. **Properties more expensive than average** (non-correlated)
+2. **Properties with above-average ratings** (correlated)
+3. **Users who have never made a booking** (NOT EXISTS)
+4. **Most recent booking for each property** (correlated with MAX)
+
+## Database Schema Reference
+
+### User Table
+```sql
+user_id (PK), first_name, last_name, email, phone_number, created_at
+```
+
+### Property Table
+```sql
+property_id (PK), name, location, pricepernight, description
+```
+
+### Booking Table
+```sql
+booking_id (PK), user_id (FK), property_id (FK), start_date, end_date, status
+```
+
+### Review Table
+```sql
+review_id (PK), property_id (FK), user_id (FK), rating, comment, created_at
+```
+
+## How to Run
+
+1. **Navigate to the directory**:
+   ```bash
+   cd alx-airbnb-database/database-adv-script
+   ```
+
+2. **Execute the queries**:
+   ```bash
+   # Run all queries
+   mysql -u your_username -p your_database < subqueries.sql
+
+   # Or run specific queries interactively
+   mysql -u your_username -p your_database
+   source subqueries.sql;
+   ```
+
+3. **Test individual queries**: Copy and paste specific queries into your SQL client.
+
+## Performance Optimization Tips
+
+### For Non-Correlated Subqueries:
+- Ensure indexed columns in GROUP BY and WHERE clauses
+- Use EXPLAIN to verify subquery is executed once
+- Consider materialized views for frequently used aggregations
+
+### For Correlated Subqueries:
+- Index the correlation columns (e.g., user_id, property_id)
+- Use EXISTS instead of COUNT(*) > 0 when checking existence
+- Consider rewriting as JOINs if performance is poor
+- Test with EXPLAIN ANALYZE to see execution plan
+
+## Comparison: Subquery vs JOIN
+
+**When to use Subqueries**:
+- Logic is clearer with nested structure
+- Need to aggregate before filtering
+- Performing existence checks
+- Working with scalar values
+
+**When to use JOINs**:
+- Need columns from multiple tables
+- Better performance on large datasets
+- More readable for simple relationships
+- Supported by query optimizer
+
+## Common Pitfalls to Avoid
+
+1. **Using correlated subqueries unnecessarily** - Check if a JOIN would work
+2. **Not indexing correlation columns** - Leads to poor performance
+3. **Returning multiple rows in scalar subquery** - Causes errors
+4. **Ignoring NULL values** - Can produce unexpected results
+5. **Over-nesting subqueries** - Makes queries hard to maintain
+
+## Testing Your Queries
+
+```sql
+-- Verify property count
+SELECT COUNT(*) FROM Property WHERE property_id IN (
+    SELECT property_id FROM Review 
+    GROUP BY property_id 
+    HAVING AVG(rating) > 4.0
+);
+
+-- Verify user count
+SELECT COUNT(*) FROM User u WHERE (
+    SELECT COUNT(*) FROM Booking b 
+    WHERE b.user_id = u.user_id
+) > 3;
+```
+
+## Real-World Applications
+
+### E-commerce
+- Find products with high ratings
+- Identify repeat customers
+- Analyze purchase patterns
+
+### Social Media
+- Users with high engagement
+- Popular content
+- Influencer identification
+
+### Business Analytics
+- Customer segmentation
+- Performance metrics
+- Trend analysis
+
+## Next Steps
+
+Continue to:
+- Task 2: Aggregations and Window Functions
+- Task 3: Indexing for Optimization
+- Task 4: Query Optimization Techniques
+- Task 5: Partitioning Large Tables
+
+## Resources
+
+- [MySQL Subqueries Documentation](https://dev.mysql.com/doc/refman/8.0/en/subqueries.html)
+- [PostgreSQL Subquery Expressions](https://www.postgresql.org/docs/current/functions-subquery.html)
+- SQL Performance Tuning Guide
+
+## Author
+
+ALX Africa - Software Engineering Program
+
+## Repository Information
+
+- **GitHub repository**: `alx-airbnb-database`
+- **Directory**: `database-adv-script`
+- **Files**: `subqueries.sql`, `README.md`
+
+---
+
+**Note**: All queries are tested and production-ready. Adjust table and column names based on your actual schema implementation.
